@@ -40,7 +40,7 @@ class BoardingHouseDetailsView extends StatelessWidget {
                       children: [
                         Text('Description: ${room['description']}'),
                         const SizedBox(height: 10),
-                        Text('Facilities:'),
+                        const Text('Facilities:'),
                         ...room['facilities'].map<Widget>((facility) {
                           return Text('- ${facility['facility']['name']}');
                         }).toList(),

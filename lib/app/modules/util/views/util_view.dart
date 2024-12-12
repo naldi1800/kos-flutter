@@ -35,7 +35,7 @@ class UtilView extends GetView<UtilController> {
                   onPressed: controller.isApiConnected.value
                       ? () {
                           // Navigate to Home
-                          Get.offAndToNamed(Routes.HOME);
+                          Get.offAndToNamed(Routes.DASBOARD);
                         }
                       : null,
                   child: const Text('Go to Home'),

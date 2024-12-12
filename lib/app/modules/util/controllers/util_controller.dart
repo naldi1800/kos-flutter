@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:http/http.dart' as http;
+import 'package:kos_kosan/app/MainController.dart';
 
 class UtilController extends GetxController {
   // Input controller
@@ -11,16 +10,12 @@ class UtilController extends GetxController {
   final isApiConnected = false.obs;
   final errorMessage = ''.obs;
 
-  // Shared Preferences instance
-  SharedPreferences? _prefs;
-
-  // Simpan URL API secara global
   var apiUrl = ''.obs;
 
   @override
-  void onInit() {
+  void onInit() async {
     super.onInit();
-    _loadSavedUrl(); // Load URL yang sudah disimpan
+    apiUrlController.text = await MainController.loadSavedUrl();
   }
 
   // Cek koneksi API
@@ -34,13 +29,11 @@ class UtilController extends GetxController {
     }
 
     try {
-      final response = await http.get(Uri.parse(url));
-
-      if (response.statusCode == 200) {
+      if (await MainController.checkApiConnection(url)) {
         isApiConnected.value = true;
         errorMessage.value = '';
         // Simpan URL dan beri tahu pengguna
-        await _saveUrl(url);
+        await MainController.saveUrl(url);
         Get.snackbar('Success', 'Connected to API successfully!',
             snackPosition: SnackPosition.BOTTOM);
       } else {
@@ -54,21 +47,6 @@ class UtilController extends GetxController {
     }
   }
 
-  // Simpan URL ke SharedPreferences
-  Future<void> _saveUrl(String url) async {
-    _prefs ??= await SharedPreferences.getInstance();
-    await _prefs!.setString('apiUrl', url);
-    apiUrl.value = url; // Update secara global
-  }
-
-  // Load URL dari SharedPreferences
-  Future<void> _loadSavedUrl() async {
-    _prefs ??= await SharedPreferences.getInstance();
-    apiUrl.value = _prefs!.getString('apiUrl') ?? '';
-    if (apiUrl.value.isNotEmpty) {
-      apiUrlController.text = apiUrl.value;
-    }
-  }
 
   @override
   void onClose() {

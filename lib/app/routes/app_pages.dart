@@ -1,5 +1,7 @@
 import 'package:get/get.dart';
 
+import '../modules/dasboard/bindings/dasboard_binding.dart';
+import '../modules/dasboard/views/dasboard_view.dart';
 import '../modules/home/bindings/home_binding.dart';
 import '../modules/home/views/home_view.dart';
 import '../modules/room/bindings/room_binding.dart';
@@ -22,7 +24,7 @@ class AppPages {
     ),
     GetPage(
       name: _Paths.ROOM,
-      page: () =>  RoomView(
+      page: () => RoomView(
         boardingHouse: Get.arguments,
       ),
       binding: RoomBinding(),
@@ -31,6 +33,11 @@ class AppPages {
       name: _Paths.UTIL,
       page: () => const UtilView(),
       binding: UtilBinding(),
+    ),
+    GetPage(
+      name: _Paths.DASBOARD,
+      page: () => const DasboardView(),
+      binding: DasboardBinding(),
     ),
   ];
 }
