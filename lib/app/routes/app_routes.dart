@@ -7,6 +7,8 @@ abstract class Routes {
   static const ROOM = _Paths.ROOM;
   static const UTIL = _Paths.UTIL;
   static const DASBOARD = _Paths.DASBOARD;
+  static const DETAIL = _Paths.DETAIL;
+  static const MENUITEM = _Paths.MENUITEM;
 }
 
 abstract class _Paths {
@@ -15,4 +17,6 @@ abstract class _Paths {
   static const ROOM = '/room';
   static const UTIL = '/util';
   static const DASBOARD = '/dasboard';
+  static const DETAIL = '/detail';
+  static const MENUITEM = '/menuitem';
 }

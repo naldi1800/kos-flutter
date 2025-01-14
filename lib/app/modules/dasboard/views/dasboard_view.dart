@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 
 import 'package:get/get.dart';
+import 'package:kos_kosan/app/routes/app_pages.dart';
 
 import '../controllers/dasboard_controller.dart';
 
@@ -19,7 +20,34 @@ class DasboardView extends GetView<DasboardController> {
         title: const Text("Kosan Exploler",
             style:
                 TextStyle(color: Colors.orange, fontWeight: FontWeight.bold)),
-        leading: const Icon(Icons.menu, color: Colors.orange),
+        leading: PopupMenuButton(
+          icon: const Icon(Icons.menu, color: Colors.orange),
+          itemBuilder: (context) => [
+            const PopupMenuItem(
+              value: 'Umum',
+              child: Text('Umum'),
+            ),
+            const PopupMenuItem(
+              value: 'Khusus Putra',
+              child: Text('Khusus Putra'),
+            ),
+            const PopupMenuItem(
+              value: 'Khusus Putri',
+              child: Text('Khusus Putri'),
+            ),
+          ],
+          onSelected: (value) {
+            if (value == 'Umum') {
+              Get.toNamed(Routes.MENUITEM, parameters: {'gender': 'Bebas'});
+            } else if (value == 'Khusus Putra') {
+              Get.toNamed(Routes.MENUITEM,
+                  parameters: {'gender': 'Khusus Putra'});
+            } else if (value == 'Khusus Putri') {
+              Get.toNamed(Routes.MENUITEM,
+                  parameters: {'gender': 'Khusus Putri'});
+            }
+          },
+        ),
         actions: [
           Obx(
             () => Visibility(
@@ -64,7 +92,12 @@ class DasboardView extends GetView<DasboardController> {
                       color: Colors.orange,
                       borderRadius: BorderRadius.circular(8),
                     ),
-                    child: const Icon(Icons.search, color: Colors.white),
+                    child: IconButton(
+                        onPressed: () {
+                          Get.toNamed(Routes.MENUITEM,
+                              parameters: {'search': controller.searchController.text});
+                        },
+                        icon: const Icon(Icons.search, color: Colors.white)),
                   ),
                 ],
               ),
@@ -97,7 +130,12 @@ class DasboardView extends GetView<DasboardController> {
                     stream: controller.getBoardingHouses(),
                     builder: (context, snapshot) {
                       if (snapshot.connectionState == ConnectionState.waiting) {
-                        return const CircularProgressIndicator();
+                        return const Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            CircularProgressIndicator(),
+                          ],
+                        );
                       } else {
                         return Obx(() {
                           // print(snapshot.data);
@@ -154,8 +192,11 @@ class DasboardView extends GetView<DasboardController> {
                                     .where((room) => room['availability'] == 1)
                                     .toList()
                                     .length;
-                                // print(datas[index]['image']);
+                                print("Gambar");
+                                print(datas[index]['image']);
+                                print(datas[index]['image'][0]['url']);
                                 return _buildBoardingHouseCard(
+                                  id: datas[index]['id'],
                                   title: datas[index]['name'],
                                   location: datas[index]['address'],
                                   availability:
@@ -164,13 +205,13 @@ class DasboardView extends GetView<DasboardController> {
                                       (Random().nextDouble() < 0.5)
                                           ? Colors.white
                                           : Colors.orange,
-                                  imageUrl: datas[index]['image'],
+                                  imageUrl: datas[index]['image'][0]['url'],
                                 );
                               },
                             );
                           } else {
                             return Container(
-                              child: Text("Data Kos Kosan Kosong"),
+                              child: const Text("Data Kos Kosan Kosong"),
                             );
                           }
                         });
@@ -187,8 +228,17 @@ class DasboardView extends GetView<DasboardController> {
         unselectedItemColor: Colors.grey,
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-          BottomNavigationBarItem(icon: Icon(Icons.favorite), label: 'Favorit'),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.exit_to_app),
+            label: 'Exit',
+          ),
         ],
+        onTap: (index) {
+          print(index);
+          if (index == 1) {
+            Get.offAndToNamed(Routes.UTIL);
+          }
+        },
       ),
     );
   }
@@ -218,6 +268,7 @@ class DasboardView extends GetView<DasboardController> {
         shrinkWrap: true,
         children: [
           TextField(
+            controller: controller.searchController,
             decoration: InputDecoration(
               filled: true,
               fillColor: Colors.grey[800],
@@ -252,76 +303,81 @@ class DasboardView extends GetView<DasboardController> {
   }
 
   Widget _buildBoardingHouseCard({
+    required int id,
     required String title,
     required String location,
     required String availability,
     required Color favoriteIconColor,
     required String imageUrl,
   }) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.grey[900],
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Expanded(
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(16),
-              child: Image.network(
-                imageUrl, // Ganti dengan gambar Anda
-                fit: BoxFit.cover,
+    return GestureDetector(
+      onTap: () =>
+          Get.toNamed(Routes.DETAIL, parameters: {"id": id.toString()}),
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.grey[900],
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(16),
+                child: Image.network(
+                  imageUrl, // Ganti dengan gambar Anda
+                  fit: BoxFit.cover,
+                ),
               ),
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  location,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    color: Colors.grey[400],
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      availability,
-                      style: const TextStyle(
-                        color: Colors.orange,
-                        fontWeight: FontWeight.bold,
-                      ),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
                     ),
-                    Icon(Icons.favorite, color: favoriteIconColor)
-                    // Container(
-                    //   padding: const EdgeInsets.all(4),
-                    //   decoration: BoxDecoration(
-                    //     color: Colors.orange,
-                    //     borderRadius: BorderRadius.circular(8),
-                    //   ),
-                    //   child: Icon(Icons.favorite, color: favoriteIconColor),
-                    // ),
-                  ],
-                ),
-              ],
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    location,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      color: Colors.grey[400],
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        availability,
+                        style: const TextStyle(
+                          color: Colors.orange,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      // Icon(Icons.favorite, color: favoriteIconColor)
+                      // Container(
+                      //   padding: const EdgeInsets.all(4),
+                      //   decoration: BoxDecoration(
+                      //     color: Colors.orange,
+                      //     borderRadius: BorderRadius.circular(8),
+                      //   ),
+                      //   child: Icon(Icons.favorite, color: favoriteIconColor),
+                      // ),
+                    ],
+                  ),
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

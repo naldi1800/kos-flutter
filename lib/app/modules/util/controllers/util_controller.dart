@@ -9,6 +9,7 @@ class UtilController extends GetxController {
   // Observables
   final isApiConnected = false.obs;
   final errorMessage = ''.obs;
+  var isLoading = false.obs;
 
   var apiUrl = ''.obs;
 
@@ -21,6 +22,7 @@ class UtilController extends GetxController {
   // Cek koneksi API
   void checkApiConnection() async {
     final url = apiUrlController.text;
+    isLoading.value = true;
 
     if (url.isEmpty) {
       errorMessage.value = 'Please enter a valid URL';
@@ -34,17 +36,23 @@ class UtilController extends GetxController {
         errorMessage.value = '';
         // Simpan URL dan beri tahu pengguna
         await MainController.saveUrl(url);
-        Get.snackbar('Success', 'Connected to API successfully!',
-            snackPosition: SnackPosition.BOTTOM);
+        Get.snackbar('Success', 'Sambungan API berhasil',
+            snackPosition: SnackPosition.BOTTOM,
+            backgroundColor: Colors.orange,
+            colorText: Colors.white);
       } else {
         throw Exception('Invalid API response');
       }
     } catch (e) {
       isApiConnected.value = false;
-      errorMessage.value = 'Failed to connect to API. Please check the URL.';
+      errorMessage.value = 'Gagal menghubungi API, perihatikan URL atau koneksi internet';
       Get.snackbar('Error', errorMessage.value,
-          snackPosition: SnackPosition.BOTTOM, backgroundColor: Colors.red);
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.red,
+          colorText: Colors.white);
     }
+
+    isLoading.value = false;
   }
 
 
@@ -58,3 +66,4 @@ class UtilController extends GetxController {
     return $prefix.number_format($amount, 0, ',', '.');
   }
 }
+

@@ -1,5 +1,5 @@
 import 'package:get/get.dart';
-import 'package:kos_kosan/app/MainController.dart';
+// import 'package:kos_kosan/app/MainController.dart';
 
 import '../controllers/dasboard_controller.dart';
 
