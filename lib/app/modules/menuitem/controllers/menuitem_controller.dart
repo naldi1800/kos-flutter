@@ -10,7 +10,7 @@ class MenuitemController extends GetxController {
 
   Stream<List<dynamic>> getBoardingHouses(type) async* {
     await MainController.loadSavedUrl();
-    var response;
+    http.Response response;
     if (type == '') {
       type = Get.parameters['search'];
       response = await http.get(Uri.parse(

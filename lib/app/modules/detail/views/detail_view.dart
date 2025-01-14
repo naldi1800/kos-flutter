@@ -49,7 +49,8 @@ class DetailView extends GetView<DetailController> {
                                     'facility': facility['facility']
                                   })
                               .toList(),
-                          'description': room['description']
+                          'description': room['description'],
+                          'image': room['image'],
                         })
                     .toList();
                 return Column(
@@ -208,6 +209,7 @@ class DetailView extends GetView<DetailController> {
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          _roomDetail(room["id"], key: "Gambar", value: room['image']),
           _roomDetail(room["id"], key: "Ukuran", value: room['size']),
           _roomDetail(room["id"], key: "Harga", value: room['price']),
           _roomDetail(room["id"],
@@ -219,45 +221,133 @@ class DetailView extends GetView<DetailController> {
   }
 
   Widget _roomDetail(
-    int id, {
-    required String key,
-    required dynamic value,
-    bool isFacility = false,
-  }) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.start,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          "$key : ",
-          style: const TextStyle(
-            fontSize: 13,
-            color: Colors.white,
-          ),
+  int id, {
+  required String key,
+  required dynamic value,
+  bool isFacility = false,
+}) {
+  return Column(
+    mainAxisAlignment: MainAxisAlignment.start,
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Text(
+        "$key : ",
+        style: const TextStyle(
+          fontSize: 13,
+          color: Colors.white,
         ),
-        (!isFacility)
-            ? Text(
-                "    ${value.toString()}",
-                overflow: TextOverflow.clip,
-                style: TextStyle(
-                  fontSize: 14,
-                  color: Colors.orange[400],
-                ),
-              )
-            : ListView.builder(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                itemCount: value.length,
-                itemBuilder: (c, index) {
-                  var fac = value[index]['facility'];
-                  return Text(
-                    "     - ${fac['name']}",
-                    style: const TextStyle(color: Colors.orange),
-                  );
-                },
+      ),
+      (!isFacility)
+          ? (key == "Gambar")
+              ? GestureDetector(
+                  onTap: () {
+                    _showImageDialog(value);
+                  },
+                  child: Container(
+                    margin: const EdgeInsets.only(top: 5),
+                    height: 150,
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(10),
+                      image: DecorationImage(
+                        image: NetworkImage(value[0]['url']),
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                  ),
+                )
+              : Text(
+                  "    ${value.toString()}",
+                  overflow: TextOverflow.clip,
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Colors.orange[400],
+                  ),
+                )
+          : ListView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: value.length,
+              itemBuilder: (c, index) {
+                var fac = value[index]['facility'];
+                return Text(
+                  "     - ${fac['name']}",
+                  style: const TextStyle(color: Colors.orange),
+                );
+              },
+            ),
+      const SizedBox(height: 10),
+    ],
+  );
+}
+
+void _showImageDialog(List<dynamic> images) {
+  Get.dialog(
+    Dialog(
+      backgroundColor: Colors.black.withOpacity(0.8),
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        height: 300,
+        child: PageView.builder(
+          itemCount: images.length,
+          itemBuilder: (context, index) {
+            return ClipRRect(
+              borderRadius: BorderRadius.circular(10),
+              child: Image.network(
+                images[index]['url'],
+                fit: BoxFit.cover,
               ),
-        const SizedBox(height: 10),
-      ],
-    );
-  }
+            );
+          },
+        ),
+      ),
+    ),
+  );
+}
+
+
+  // Widget _roomDetail(
+  //   int id, {
+  //   required String key,
+  //   required dynamic value,
+  //   bool isFacility = false,
+  // }) {
+  //   return Column(
+  //     mainAxisAlignment: MainAxisAlignment.start,
+  //     crossAxisAlignment: CrossAxisAlignment.start,
+  //     children: [
+  //       Text(
+  //         "$key : ",
+  //         style: const TextStyle(
+  //           fontSize: 13,
+  //           color: Colors.white,
+  //         ),
+  //       ),
+  //       (!isFacility)
+  //           ? Text(
+  //               "    ${value.toString()}",
+  //               overflow: TextOverflow.clip,
+  //               style: TextStyle(
+  //                 fontSize: 14,
+  //                 color: Colors.orange[400],
+  //               ),
+  //             )
+  //           : ListView.builder(
+  //               shrinkWrap: true,
+  //               physics: const NeverScrollableScrollPhysics(),
+  //               itemCount: value.length,
+  //               itemBuilder: (c, index) {
+  //                 var fac = value[index]['facility'];
+  //                 return Text(
+  //                   "     - ${fac['name']}",
+  //                   style: const TextStyle(color: Colors.orange),
+  //                 );
+  //               },
+  //             ),
+  //       const SizedBox(height: 10),
+  //     ],
+  //   );
+  // }
+
+
 }
